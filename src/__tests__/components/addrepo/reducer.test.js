@@ -1,4 +1,6 @@
 import { initialState, reducer } from "../../../components/addrepo/reducer";
+import searchrepo from "./searchrepo.json";
+import searchuser from "./searchuser.json";
 
 describe("AddRepo reducer", () => {
   test("validate initial state", () => {
@@ -19,69 +21,59 @@ describe("AddRepo reducer", () => {
 
   test("reducer check", () => {
     expect(
-      reducer(initialState, {
-        type: "add.repos",
-        data: {
-          items: [],
+      reducer(
+        {},
+        {
+          type: "add.repos",
+          data: searchrepo,
+        }
+      )
+    ).toStrictEqual({
+      searchResults: searchrepo.items.map((repo) => ({
+        Name: { value: repo.name || "", isLink: true },
+        Maintainer: {
+          value: repo.owner && repo.owner.login ? repo.owner.login : "",
         },
-      })
-    ).toStrictEqual({
-      searchInput: "",
-      originalInput: "",
-      typeInput: "user",
-      searchResults: [],
-      userSearchResults: [],
+        URL: { value: repo.html_url || "" },
+        Created: { value: repo.created_at || "" },
+      })),
       totalCount: 1000,
-      pageNumber: 1,
       isLoading: false,
-      dataHeaders: ["Index", "Name", "Maintainer", "Created", "URL"],
-      userDataHeaders: ["Index", "Name", "URL"],
-      showUserRepos: false,
-    });
-
-    expect(
-      reducer(initialState, {
-        type: "add.users",
-        data: {
-          items: [],
-        },
-      })
-    ).toStrictEqual({
-      searchInput: "",
-      originalInput: "",
-      typeInput: "user",
-      searchResults: [],
-      userSearchResults: [],
-      totalCount: 1000,
-      pageNumber: 1,
-      isLoading: false,
-      dataHeaders: ["Index", "Name", "Maintainer", "Created", "URL"],
-      userDataHeaders: ["Index", "Name", "URL"],
-      showUserRepos: false,
-    });
-
-    expect(
-      reducer(initialState, {
-        type: "search",
-        search: "new",
-      })
-    ).toStrictEqual({
-      searchInput: "new",
-      originalInput: "",
-      typeInput: "user",
-      searchResults: [],
-      userSearchResults: [],
-      totalCount: 0,
-      pageNumber: 1,
-      isLoading: false,
-      dataHeaders: ["Index", "Name", "Maintainer", "Created", "URL"],
-      userDataHeaders: ["Index", "Name", "URL"],
-      showUserRepos: false,
     });
 
     expect(
       reducer(
-        { ...initialState, pageNumber: 5 },
+        {},
+        {
+          type: "add.users",
+          data: searchuser,
+        }
+      )
+    ).toStrictEqual({
+      userSearchResults: searchuser.items.map((user) => ({
+        Name: { value: user.login || "", isLink: true },
+        URL: { value: user.html_url || "" },
+        Repo: { value: user.repos_url || "" },
+      })),
+      totalCount: 1000,
+      isLoading: false,
+    });
+
+    expect(
+      reducer(
+        {},
+        {
+          type: "search",
+          search: "new",
+        }
+      )
+    ).toStrictEqual({
+      searchInput: "new",
+    });
+
+    expect(
+      reducer(
+        {},
         {
           type: "search",
           search: "",
@@ -89,144 +81,101 @@ describe("AddRepo reducer", () => {
       )
     ).toStrictEqual({
       searchInput: "",
-      originalInput: "",
-      typeInput: "user",
-      searchResults: [],
       userSearchResults: [],
-      totalCount: 0,
-      pageNumber: 1,
-      isLoading: false,
-      dataHeaders: ["Index", "Name", "Maintainer", "Created", "URL"],
-      userDataHeaders: ["Index", "Name", "URL"],
-      showUserRepos: false,
-    });
-
-    expect(
-      reducer(initialState, {
-        type: "set.loading",
-      })
-    ).toStrictEqual({
-      searchInput: "",
-      originalInput: "",
-      typeInput: "user",
       searchResults: [],
-      userSearchResults: [],
-      totalCount: 0,
       pageNumber: 1,
-      isLoading: true,
-      dataHeaders: ["Index", "Name", "Maintainer", "Created", "URL"],
-      userDataHeaders: ["Index", "Name", "URL"],
-      showUserRepos: false,
+      totalCount: 0,
     });
 
     expect(
       reducer(
-        { ...initialState, searchResults: ["a", "b", "c"] },
+        {},
+        {
+          type: "set.loading",
+          loading: true,
+        }
+      )
+    ).toStrictEqual({
+      isLoading: true,
+    });
+
+    expect(
+      reducer(
+        { searchResults: ["a", "b", "c"] },
         {
           type: "update.search.results",
           index: 1,
         }
       )
     ).toStrictEqual({
-      searchInput: "",
-      originalInput: "",
-      typeInput: "user",
       searchResults: ["a", "c"],
-      userSearchResults: [],
-      totalCount: 0,
-      pageNumber: 1,
-      isLoading: false,
-      dataHeaders: ["Index", "Name", "Maintainer", "Created", "URL"],
-      userDataHeaders: ["Index", "Name", "URL"],
-      showUserRepos: false,
     });
 
     expect(
       reducer(
-        { ...initialState, searchInput: "new" },
+        {},
         {
           type: "update.type",
           typeInput: "repo",
         }
       )
     ).toStrictEqual({
+      typeInput: "repo",
       searchInput: "",
       originalInput: "",
-      typeInput: "repo",
       searchResults: [],
       userSearchResults: [],
       totalCount: 0,
       pageNumber: 1,
-      isLoading: false,
-      dataHeaders: ["Index", "Name", "Maintainer", "Created", "URL"],
-      userDataHeaders: ["Index", "Name", "URL"],
-      showUserRepos: false,
     });
 
     expect(
-      reducer(initialState, {
-        type: "reset.user.repos",
-        show: true,
-        isLoading: true,
-      })
+      reducer(
+        {},
+        {
+          type: "reset.user.repos",
+          show: true,
+          isLoading: true,
+        }
+      )
     ).toStrictEqual({
-      searchInput: "",
-      originalInput: "",
-      typeInput: "user",
-      searchResults: [],
-      userSearchResults: [],
-      totalCount: 0,
-      pageNumber: 1,
       isLoading: true,
-      dataHeaders: ["Index", "Name", "Maintainer", "Created", "URL"],
-      userDataHeaders: ["Index", "Name", "URL"],
       showUserRepos: true,
     });
 
     expect(
-      reducer(initialState, {
-        type: "updateinput",
-        inputSearch: "new",
-      })
+      reducer(
+        {},
+        {
+          type: "updateinput",
+          inputSearch: "new",
+        }
+      )
     ).toStrictEqual({
-      searchInput: "",
       originalInput: "new",
-      typeInput: "user",
-      searchResults: [],
-      userSearchResults: [],
-      totalCount: 0,
-      pageNumber: 1,
-      isLoading: false,
-      dataHeaders: ["Index", "Name", "Maintainer", "Created", "URL"],
-      userDataHeaders: ["Index", "Name", "URL"],
-      showUserRepos: false,
     });
 
     expect(
-      reducer(initialState, {
-        type: "update.page",
-        pageNumber: 5,
-      })
+      reducer(
+        {},
+        {
+          type: "update.page",
+          pageNumber: 5,
+        }
+      )
     ).toStrictEqual({
-      searchInput: "",
-      originalInput: "",
-      typeInput: "user",
-      searchResults: [],
-      userSearchResults: [],
-      totalCount: 0,
       pageNumber: 5,
-      isLoading: false,
-      dataHeaders: ["Index", "Name", "Maintainer", "Created", "URL"],
-      userDataHeaders: ["Index", "Name", "URL"],
-      showUserRepos: false,
     });
 
     try {
-      reducer(initialState, {
-        type: "error",
-      });
+      reducer(
+        {},
+        {
+          type: "error",
+        }
+      );
     } catch (error) {
-      expect(typeof error).toBe("object");
+      expect(true).toBe(true);
     }
   });
 });

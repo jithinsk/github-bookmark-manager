@@ -4,27 +4,37 @@ import {
   fireEvent,
   screen,
   waitForDomChange,
-  waitForElementToBeRemoved,
+  waitForElement,
 } from "@testing-library/react";
 import AddRepo from "../../../components/addrepo";
 import Search from "../../../components/search";
+import ResultsTable from "../../../components/results";
+import Paginatnor from "../../../components/pagination";
 import * as API from "./../../../api";
 import userreporespnse from "./userrepo.json";
 import searchuserresponse from "./searchuser.json";
 import searchreporesponse from "./searchrepo.json";
-import ResultsTable from "../../../components/results";
-import Paginatnor from "../../../components/pagination";
 
-API.getUserRepos = jest.fn((url) => Promise.resolve(userreporespnse));
+API.getUserRepos = jest.fn((url) => {
+  if (url !== "https://github.com/newyjp")
+    return Promise.resolve(userreporespnse);
+  return Promise.reject();
+});
 
 API.searchRepos = jest.fn((term, page) => Promise.resolve(searchreporesponse));
 
-API.searchUsers = jest.fn((term, page) => Promise.resolve(searchuserresponse));
+API.searchUsers = jest.fn((term, page) => {
+  if (term === "add") return Promise.resolve(searchuserresponse);
+  return Promise.reject();
+});
 
 const MockSearch = ({ fieldValue, handleInputChage, handleSelectChange }) => (
   <>
     <div onClick={() => handleInputChage({ target: { value: "add" } })}>
       input
+    </div>
+    <div onClick={() => handleInputChage({ target: { value: "error" } })}>
+      search_error
     </div>
     <div onClick={() => handleSelectChange({ target: { value: "repo" } })}>
       select
@@ -48,7 +58,15 @@ const MockResults = ({
   noRowsMessage,
 }) => (
   <>
-    <div onClick={() => buttonAction(0)}>action_test</div>
+    {isLoading ? (
+      <div>Loading...</div>
+    ) : dataset.length > 0 ? (
+      <div>Results</div>
+    ) : (
+      <div>No search results</div>
+    )}
+    <div onClick={() => buttonAction(0)}>button_action</div>
+    <div onClick={() => buttonAction(1)}>user_repo_error</div>
     {dataset &&
       dataset.map((data, index) => (
         <div key={index}>{data["URL"] && data["URL"].value}</div>
@@ -112,7 +130,7 @@ describe("AddRepo Component", () => {
     expect(
       screen.getByText("https://github.com/TeamNewPipe/NewPipe")
     ).toBeInTheDocument();
-    fireEvent.click(screen.getByText(/action_test/i));
+    fireEvent.click(screen.getByText(/button_action/i));
     expect(mockFunction).toHaveBeenCalled();
   });
 
@@ -122,7 +140,7 @@ describe("AddRepo Component", () => {
     fireEvent.click(screen.getByText(/input/i));
     await waitForDomChange();
     expect(screen.getByText("https://github.com/Newmu")).toBeInTheDocument();
-    fireEvent.click(screen.getByText(/action_test/i));
+    fireEvent.click(screen.getByText(/button_action/i));
     await waitForDomChange();
     expect(screen.getByText(/Go Back/)).toBeInTheDocument();
   });
@@ -133,10 +151,10 @@ describe("AddRepo Component", () => {
     fireEvent.click(screen.getByText(/input/i));
     await waitForDomChange();
     expect(screen.getByText("https://github.com/Newmu")).toBeInTheDocument();
-    fireEvent.click(screen.getByText(/action_test/i));
+    fireEvent.click(screen.getByText(/button_action/i));
     await waitForDomChange();
     expect(screen.getByText(/Go Back/)).toBeInTheDocument();
-    fireEvent.click(screen.getByText(/action_test/i));
+    fireEvent.click(screen.getByText(/button_action/i));
     expect(mockFunction).toHaveBeenCalled();
     fireEvent.click(screen.getByText(/Go Back/i));
     expect(screen.getByText("https://github.com/Newmu")).toBeInTheDocument();
@@ -149,5 +167,19 @@ describe("AddRepo Component", () => {
     expect(screen.getByText("https://github.com/Newmu")).toBeInTheDocument();
     fireEvent.click(screen.getByText(/page_change/i));
     expect(screen.getByText("https://github.com/Newmu")).toBeInTheDocument();
+  });
+
+  test("changes input value with error", async () => {
+    render(<AddRepo addRepository={() => {}} />);
+    fireEvent.click(screen.getByText(/search_error/i));
+    expect(screen.getByText("No search results")).toBeInTheDocument();
+  });
+
+  test("select user repo view with error", async () => {
+    const mockFunction = jest.fn(() => {});
+    render(<AddRepo addRepository={mockFunction} />);
+    fireEvent.click(screen.getByText(/input/i));
+    fireEvent.click(screen.getByText(/user_repo_error/i));
+    expect(screen.getByText("No search results")).toBeInTheDocument();
   });
 });

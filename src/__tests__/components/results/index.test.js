@@ -1,10 +1,10 @@
 import React from "react";
-import { render, fireEvent } from "@testing-library/react";
+import { render, fireEvent, screen } from "@testing-library/react";
 import Results from "../../../components/results";
 
 describe("Results Component", () => {
   test("renders results component without data", () => {
-    const { getByText } = render(
+    render(
       <Results
         dataHeaders={["Index", "Name"]}
         dataset={[]}
@@ -15,18 +15,13 @@ describe("Results Component", () => {
         buttonText=""
       />
     );
-    const headerIndex = getByText(/Index/i);
-    expect(headerIndex).toBeInTheDocument();
-
-    const headerName = getByText(/Name/i);
-    expect(headerName).toBeInTheDocument();
-
-    const noRowsMessage = getByText(/No rows/i);
-    expect(noRowsMessage).toBeInTheDocument();
+    expect(screen.getByText(/Index/i)).toBeInTheDocument();
+    expect(screen.getByText(/Name/i)).toBeInTheDocument();
+    expect(screen.getByText(/No rows/i)).toBeInTheDocument();
   });
 
   test("renders results component with isloading", () => {
-    const { getByText } = render(
+    render(
       <Results
         dataHeaders={["Index", "Name"]}
         dataset={[]}
@@ -37,13 +32,12 @@ describe("Results Component", () => {
         buttonText=""
       />
     );
-    const loading = getByText(/Loading.../i);
-    expect(loading).toBeInTheDocument();
+    expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
   });
 
   test("renders results component with data and button", () => {
     const mockFunction = jest.fn(() => {});
-    const { getByText } = render(
+    render(
       <Results
         dataHeaders={["Index", "Name", "Link"]}
         dataset={[
@@ -67,14 +61,13 @@ describe("Results Component", () => {
         buttonText="Add"
       />
     );
-    const field = getByText(/test_name/i);
-    expect(field).toBeInTheDocument();
-    const link = getByText(/test_link/i);
+    expect(screen.getByText(/test_name/i)).toBeInTheDocument();
+    const link = screen.getByText(/test_link/i);
     expect(link).toBeInTheDocument();
     expect(link.tagName.toLowerCase()).toBe("a");
     expect(link.getAttribute("href")).toBe("url");
 
-    const addButton = getByText(/Add/i);
+    const addButton = screen.getByText(/Add/i);
     expect(addButton).toBeInTheDocument();
     fireEvent.click(addButton);
     expect(mockFunction).toHaveBeenCalled();

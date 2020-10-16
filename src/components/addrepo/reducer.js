@@ -4,12 +4,12 @@ export const reducer = (state, action) => {
       return {
         ...state,
         searchResults: action.data.items.map((repo) => ({
-          Name: { value: repo.name || "", isLink: true },
+          Name: { value: repo.name, isLink: true },
           Maintainer: {
-            value: repo.owner && repo.owner.login ? repo.owner.login : "",
+            value: repo.owner.login,
           },
-          URL: { value: repo.html_url || "" },
-          Created: { value: repo.created_at || "" },
+          URL: { value: repo.html_url },
+          Created: { value: repo.created_at },
         })),
         totalCount: 1000, //Github API limitation
         isLoading: false,
@@ -18,9 +18,9 @@ export const reducer = (state, action) => {
       return {
         ...state,
         userSearchResults: action.data.items.map((user) => ({
-          Name: { value: user.login || "", isLink: true },
-          URL: { value: user.html_url || "" },
-          Repo: { value: user.repos_url || "" },
+          Name: { value: user.login, isLink: true },
+          URL: { value: user.html_url },
+          Repo: { value: user.repos_url },
         })),
         totalCount: 1000, //Github API limitation
         isLoading: false,
@@ -33,17 +33,19 @@ export const reducer = (state, action) => {
           userSearchResults: [],
           searchResults: [],
           pageNumber: 1,
+          totalCount: 0,
         };
       }
       return newState;
     case "set.loading":
       return {
         ...state,
-        isLoading: !state.isLoading,
+        isLoading: action.loading,
       };
     case "update.search.results":
-      state.searchResults.splice(action.index, 1);
-      return state;
+      let newResults = [...state.searchResults];
+      newResults.splice(action.index, 1);
+      return { ...state, searchResults: newResults };
     case "update.type":
       return {
         ...state,

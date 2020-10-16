@@ -4,25 +4,19 @@ import Search from "../../../components/search";
 
 describe("Search Component", () => {
   test("renders Search component with value in search input", () => {
-    const { getByText, getByDisplayValue } = render(
+    render(
       <Search
         handleInputChage={() => {}}
         handleSelectChange={() => {}}
         fieldValue="test_value"
       />
     );
-    const header = getByText(/Search Options:/i);
-    expect(header).toBeInTheDocument();
-    const type = getByText(/Type:/i);
-    expect(type).toBeInTheDocument();
-    const users = getByText(/Users/i);
-    expect(users).toBeInTheDocument();
-    const repo = getByText(/Repository/i);
-    expect(repo).toBeInTheDocument();
-    const search = getByText(/Search:/i);
-    expect(search).toBeInTheDocument();
-    const input = getByDisplayValue("test_value");
-    expect(input).toBeInTheDocument();
+    expect(screen.getByText(/Search Options:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Type:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Users/i)).toBeInTheDocument();
+    expect(screen.getByText(/Repository/i)).toBeInTheDocument();
+    expect(screen.getByText(/Search:/i)).toBeInTheDocument();
+    expect(screen.getByDisplayValue("test_value")).toBeInTheDocument();
   });
 
   test("change input field value", () => {

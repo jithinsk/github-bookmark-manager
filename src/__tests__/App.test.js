@@ -10,7 +10,7 @@ const MockNavigation = ({ showAddPage, goto }) => (
     {!showAddPage ? (
       <div onClick={() => goto("add-new")}>navigatorNew</div>
     ) : (
-      <div onClick={() => goto("home")}>navigatorHome</div>
+      <div onClick={() => goto()}>navigatorHome</div>
     )}
   </>
 );

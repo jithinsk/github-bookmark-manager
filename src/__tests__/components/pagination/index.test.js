@@ -97,4 +97,13 @@ describe("Pagination Component", () => {
     expect(mockFunction).not.toHaveBeenCalled();
     expect(screen.getByText(/5/i).parentElement).toHaveClass("active");
   });
+
+  test("render with page 100", () => {
+    const { getByText } = render(
+      <Pagination total={2000} pageChanged={() => {}} selected={50} />
+    );
+    const secondElement = getByText(/50/i);
+    expect(secondElement).toBeInTheDocument();
+    expect(secondElement.parentElement).toHaveClass("active");
+  });
 });

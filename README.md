@@ -9,7 +9,7 @@
   `npm start`
 
 - Run tests with coverage:
-  `npm run test -- --watchAll=false --coverage`
+  `npm test -- --watchAll=false --coverage --silent`
 
 - Create build:
-  `npm run build`
+  `npm build`

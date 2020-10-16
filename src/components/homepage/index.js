@@ -1,7 +1,6 @@
 import React from "react";
 import WrapperUI from "./../wrapper";
 import ResultsTable from "./../results";
-import "./index.css";
 
 const Homepage = ({ repositories }) => (
   <WrapperUI heading="Home">

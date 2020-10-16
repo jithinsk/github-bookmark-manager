@@ -1,5 +1,5 @@
 import React from "react";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import Wrapper from "../../../components/wrapper";
 
 describe("Wrapper Component", () => {
@@ -7,9 +7,7 @@ describe("Wrapper Component", () => {
     const { getByText } = render(
       <Wrapper heading="Home" children={<p>children</p>} />
     );
-    const homeElement = getByText(/Home/i);
-    expect(homeElement).toBeInTheDocument();
-    const children = getByText(/children/i);
-    expect(children).toBeInTheDocument();
+    expect(screen.getByText(/Home/i)).toBeInTheDocument();
+    expect(screen.getByText(/children/i)).toBeInTheDocument();
   });
 });

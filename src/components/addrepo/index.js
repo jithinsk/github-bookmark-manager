@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useCallback, useEffect, useReducer } from "react";
 import { Button } from "react-bootstrap";
 import Search from "./../search";
 import ResultsTable from "./../results";
@@ -17,13 +17,13 @@ const AddRepository = ({ addRepository }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const handleInputChage = (event) => {
-    if (state.isLoading) return;
+    if (state.isLoading) return event.preventDefault();
     dispatch({ type: "updateinput", inputSearch: event.target.value });
     debounceInput(event.target.value, dispatch);
   };
 
   const handleSelectChange = (event) => {
-    if (!event.target.value) return;
+    if (state.isLoading) return event.preventDefault();
     dispatch({ type: "update.type", typeInput: event.target.value });
   };
 
@@ -35,9 +35,7 @@ const AddRepository = ({ addRepository }) => {
     });
   };
 
-  const goBackToUserSeach = () => {
-    dispatch({ type: "reset.user.repos" });
-  };
+  const goBackToUserSeach = () => dispatch({ type: "reset.user.repos" });
 
   const handleUserSelect = async (index) => {
     try {
@@ -52,48 +50,39 @@ const AddRepository = ({ addRepository }) => {
       });
     } catch (error) {
       console.error(error);
+      dispatch({ type: "set.loading", loading: false });
     }
   };
 
   const pageChanged = (pageNumber) =>
     dispatch({ type: "update.page", pageNumber });
 
-  useEffect(() => {
-    if (state.searchInput === "") return;
-    let isMounted = true;
-    const fetchData = async () => {
-      try {
-        dispatch({ type: "set.loading" });
-        if (state.typeInput === "user") {
-          const response = await searchUsers(
-            state.searchInput,
-            state.pageNumber
-          );
-          if (isMounted) {
-            dispatch({
-              type: "add.users",
-              data: response,
-            });
-          }
-        } else {
-          const response = await searchRepos(
-            state.searchInput,
-            state.pageNumber
-          );
-          if (isMounted) {
-            dispatch({
-              type: "add.repos",
-              data: response,
-            });
-          }
-        }
-      } catch (error) {
-        console.error(error);
+  const fetchData = useCallback(async () => {
+    try {
+      if (state.searchInput === "") return;
+      dispatch({ type: "set.loading", loading: true });
+      if (state.typeInput === "user") {
+        const response = await searchUsers(state.searchInput, state.pageNumber);
+        dispatch({
+          type: "add.users",
+          data: response,
+        });
+      } else {
+        const response = await searchRepos(state.searchInput, state.pageNumber);
+        dispatch({
+          type: "add.repos",
+          data: response,
+        });
       }
-    };
-    fetchData();
-    return () => (isMounted = false);
+    } catch (error) {
+      console.error(error);
+      dispatch({ type: "set.loading", loading: false });
+    }
   }, [state.searchInput, state.typeInput, state.pageNumber]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   return (
     <WrapperUI heading={state.showUserRepos ? "User repos" : "Search"}>
@@ -125,7 +114,7 @@ const AddRepository = ({ addRepository }) => {
               buttonAction={handleUserSelect}
               isLoading={state.isLoading}
               buttonText="View Repos"
-              noRowsMessage="Enter a term to search"
+              noRowsMessage="No search results"
             ></ResultsTable>
           ) : (
             <ResultsTable
@@ -135,7 +124,7 @@ const AddRepository = ({ addRepository }) => {
               buttonAction={handleRepositorySelect}
               isLoading={state.isLoading}
               buttonText="Add"
-              noRowsMessage="Enter a term to search"
+              noRowsMessage="No search results"
             ></ResultsTable>
           )}
           {state.totalCount > 0 && (

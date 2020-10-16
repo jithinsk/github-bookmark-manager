@@ -1,12 +1,11 @@
 import React from "react";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import Homepage from "../../../components/homepage";
 
 describe("Homepage Component", () => {
   test("renders homepage component", () => {
-    const { getByText } = render(<Homepage repositories={[]} />);
-    const homeElement = getByText(/Home/i);
-    expect(homeElement).toBeInTheDocument();
+    render(<Homepage repositories={[]} />);
+    expect(screen.getByText(/Home/i)).toBeInTheDocument();
   });
 
   test("renders homepage component with empty repositories", () => {
@@ -26,5 +25,9 @@ describe("Homepage Component", () => {
         ]}
       />
     );
+    expect(screen.getByText(/name/i)).toBeInTheDocument();
+    expect(screen.getByText(/maintainer/i)).toBeInTheDocument();
+    expect(screen.getByText(/created/i)).toBeInTheDocument();
+    expect(screen.getByText(/url/i)).toBeInTheDocument();
   });
 });
