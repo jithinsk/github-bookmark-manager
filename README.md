@@ -1,4 +1,7 @@
 ## Github Bookmark Manager
+- Add bookmarks on github repositories
+- Search By Repositories/Users
+- View Repositories for a user
 
 ### Dev Environment Setup
 
